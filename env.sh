@@ -23,10 +23,11 @@ EOF
 help_build_script() {
 cat << EOF
 
-Usage: $0 build [[-d|--dotnet] | [-h|--help]] 
+Usage: $0 build [[-d|--dotnet] | [-u|--ui] | [-h|--help]] 
 
 Arguments:
     -d, --dotnet:   Build docker container with dotnet environment.
+    -u, --ui:       Build React UI app.
     -h, --help:     Show build script usage help.
 
 EOF
@@ -36,10 +37,11 @@ EOF
 help_run_script() {
 cat << EOF
 
-Usage: $0 run [[-d|--dotnet] | [-h|--help]] 
+Usage: $0 run [[-d|--dotnet] | [-u|--ui] | [-h|--help]] 
 
 Arguments:
     -d, --dotnet:   Run docker container with dotnet environment.
+    -u, --ui:       Run React UI app.
     -h, --help:     Show run script usage help.
 
 EOF
@@ -58,6 +60,13 @@ case ${option} in
     -d|--dotnet)
         echo -e "${YELLOW}Start dotnet app${ENDCOLOR}\n"
         docker run --rm -ti -p 4000:80 ${DOTNET_IMAGE}
+        returnValue=$?
+        ;;
+    -u|--ui)
+        echo -e "${YELLOW}Start ui React app${ENDCOLOR}\n"
+        cd "${BASE_DIR}/ClientApp"
+        npm start
+        cd "${BASE_DIR}"
         returnValue=$?
         ;;
     *)
@@ -85,6 +94,14 @@ case ${option} in
         docker build -f "${BASE_DIR}/Dockerfile" -t ${DOTNET_IMAGE} ${BASE_DIR}
         returnValue=$?
         ;;
+    -u|--ui)
+        echo -e "${YELLOW}Start bulding${ENDCOLOR}\n"
+        cd "${BASE_DIR}/ClientApp"
+        npm install
+        npm run build
+        cd "${BASE_DIR}"
+        returnValue=$?
+        ;;
     *)
         echo -e "${RED}Unknown argument: $1!${ENDCOLOR}"
         help_build_script
@@ -107,7 +124,6 @@ case ${option} in
         build $@
         ;;
     run)
-        echo -e "run\n" 
         shift
         run $@
         ;;
